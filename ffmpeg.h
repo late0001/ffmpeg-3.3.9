@@ -18,6 +18,8 @@
 
 #ifndef FFMPEG_H
 #define FFMPEG_H
+#define FUNC_ENTER av_log(NULL, AV_LOG_FATAL, " %s ====> \n", __func__);
+#define FUNC_EXIT  av_log(NULL, AV_LOG_FATAL, " %s <==== \n", __func__);
 
 #include "config.h"
 

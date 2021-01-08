@@ -23,6 +23,7 @@
  * multimedia converter based on the FFmpeg libraries
  */
 
+
 #include "config.h"
 #include <ctype.h>
 #include <string.h>
@@ -1981,7 +1982,9 @@ static int check_output_constraints(InputStream *ist, OutputStream *ost)
 
     if (of->start_time != AV_NOPTS_VALUE && ist->pts < of->start_time)
         return 0;
-
+    av_log(NULL, AV_LOG_FATAL, "ddd copystart ist->pts: %lld\n of->start_time: %lld\n",
+                           ist->pts,
+                           of->start_time);
     return 1;
 }
 
@@ -1993,7 +1996,7 @@ static void do_streamcopy(InputStream *ist, OutputStream *ost, const AVPacket *p
     int64_t ost_tb_start_time = av_rescale_q(start_time, AV_TIME_BASE_Q, ost->mux_timebase);
     AVPicture pict;
     AVPacket opkt;
-
+    FUNC_ENTER
     av_init_packet(&opkt);
 
     if ((!ost->frame_number && !(pkt->flags & AV_PKT_FLAG_KEY)) &&
@@ -2001,6 +2004,8 @@ static void do_streamcopy(InputStream *ist, OutputStream *ost, const AVPacket *p
         return;
 
     if (!ost->frame_number && !ost->copy_prior_start) {
+		av_log(NULL, AV_LOG_FATAL, "ddd copy_prior_start: %d\n",
+                   ost->copy_prior_start);
         int64_t comp_start = start_time;
         if (copy_ts && f->start_time != AV_NOPTS_VALUE)
             comp_start = FFMAX(start_time, f->start_time + f->ts_offset);
@@ -2017,6 +2022,8 @@ static void do_streamcopy(InputStream *ist, OutputStream *ost, const AVPacket *p
     }
 
     if (f->recording_time != INT64_MAX) {
+		av_log(NULL, AV_LOG_FATAL, "ddd 2202 start_time: %lld\n",
+                   f->ctx->start_time);
         start_time = f->ctx->start_time;
         if (f->start_time != AV_NOPTS_VALUE && copy_ts)
             start_time += f->start_time;
@@ -2024,8 +2031,12 @@ static void do_streamcopy(InputStream *ist, OutputStream *ost, const AVPacket *p
             close_output_stream(ost);
             return;
         }
+		av_log(NULL, AV_LOG_FATAL, "ddd 2031 start_time: %lld\n",
+                   start_time);
     }
-
+    av_log(NULL, AV_LOG_FATAL, "ddd  pkt->dts: %"PRId64" pkt->pts: %"PRId64"\n",
+                   pkt->dts, pkt->pts);
+	
     /* force the input stream PTS */
     if (ost->enc_ctx->codec_type == AVMEDIA_TYPE_VIDEO)
         ost->sync_opts++;
@@ -2095,8 +2106,10 @@ static void do_streamcopy(InputStream *ist, OutputStream *ost, const AVPacket *p
         opkt.flags |= AV_PKT_FLAG_KEY;
     }
 #endif
-
+     av_log(NULL, AV_LOG_FATAL, "ddd  opkt->dts: %"PRId64" opkt->pts: %"PRId64"\n",
+                   opkt.dts, opkt.pts);
     output_packet(of, &opkt, ost);
+	FUNC_EXIT
 }
 
 int guess_input_channel_layout(InputStream *ist)
@@ -2599,6 +2612,8 @@ static int process_input_packet(InputStream *ist, const AVPacket *pkt, int no_eo
     int eof_reached = 0;
 
     AVPacket avpkt;
+	av_log(NULL, AV_LOG_FATAL, "ddd ist.pts = %lld\n", ist->pts);
+	av_log(NULL, AV_LOG_FATAL, "ddd pkt.pts = %lld\n", pkt->pts);
     if (!ist->saw_first_ts) {
         ist->dts = ist->st->avg_frame_rate.num ? - ist->dec_ctx->has_b_frames * AV_TIME_BASE / av_q2d(ist->st->avg_frame_rate) : 0;
         ist->pts = 0;
@@ -2608,6 +2623,8 @@ static int process_input_packet(InputStream *ist, const AVPacket *pkt, int no_eo
         }
         ist->saw_first_ts = 1;
     }
+	av_log(NULL, AV_LOG_FATAL, "ddd 12 ist.pts = %lld\n", ist->pts);
+	av_log(NULL, AV_LOG_FATAL, "ddd 12 pkt.pts = %lld\n", pkt->pts);
 
     if (ist->next_dts == AV_NOPTS_VALUE)
         ist->next_dts = ist->dts;
@@ -2628,7 +2645,8 @@ static int process_input_packet(InputStream *ist, const AVPacket *pkt, int no_eo
         if (ist->dec_ctx->codec_type != AVMEDIA_TYPE_VIDEO || !ist->decoding_needed)
             ist->next_pts = ist->pts = ist->dts;
     }
-
+	av_log(NULL, AV_LOG_FATAL, "ddd 19 ist.pts = %lld\n", ist->pts);
+	av_log(NULL, AV_LOG_FATAL, "ddd 19 pkt.pts = %lld\n", pkt->pts);
     // while we have more to decode or while the decoder did output something on EOF
     while (ist->decoding_needed) {
         int duration = 0;
@@ -2723,7 +2741,7 @@ static int process_input_packet(InputStream *ist, const AVPacket *pkt, int no_eo
             exit_program(1);
         }
     }
-
+	
     /* handle stream copy */
     if (!ist->decoding_needed) {
         ist->dts = ist->next_dts;
@@ -2755,6 +2773,8 @@ static int process_input_packet(InputStream *ist, const AVPacket *pkt, int no_eo
         ist->pts = ist->dts;
         ist->next_pts = ist->next_dts;
     }
+	av_log(NULL, AV_LOG_FATAL, "ddd 3 ist.pts = %lld\n", ist->pts);
+	av_log(NULL, AV_LOG_FATAL, "ddd 3 pkt.pts = %lld\n", pkt->pts);
     for (i = 0; pkt && i < nb_output_streams; i++) {
         OutputStream *ost = output_streams[i];
 
@@ -4062,6 +4082,8 @@ static int get_input_packet_mt(InputFile *f, AVPacket *pkt)
 
 static int get_input_packet(InputFile *f, AVPacket *pkt)
 {
+	av_log(NULL, AV_LOG_DEBUG, "ddd %s(%d)	f->rate_emu= %d\n ",__func__, __LINE__, f->rate_emu);
+
     if (f->rate_emu) {
         int i;
         for (i = 0; i < f->nb_streams; i++) {
@@ -4198,7 +4220,7 @@ static int process_input(int file_index)
 
     is  = ifile->ctx;
     ret = get_input_packet(ifile, &pkt);
-
+    av_log(NULL, AV_LOG_DEBUG, "ddd %s(%d)  pkt.pts= %lld\n ",__func__, __LINE__, pkt.pts);
     if (ret == AVERROR(EAGAIN)) {
         ifile->eagain = 1;
         return ret;
@@ -4240,7 +4262,7 @@ static int process_input(int file_index)
         ifile->eof_reached = 1;
         return AVERROR(EAGAIN);
     }
-
+    av_log(NULL, AV_LOG_DEBUG, "ddd %s(%d)  pkt.pts= %lld\n ",__func__, __LINE__, pkt.pts);
     reset_eagain();
 
     if (do_pkt_dump) {
@@ -4266,7 +4288,7 @@ static int process_input(int file_index)
         av_log(NULL, AV_LOG_FATAL, "%s: corrupt input packet in stream %d\n", is->filename, pkt.stream_index);
         exit_program(1);
     }
-
+     av_log(NULL, AV_LOG_DEBUG, "ddd %s(%d)  pkt.pts= %lld\n ",__func__, __LINE__, pkt.pts);
     if (debug_ts) {
         av_log(NULL, AV_LOG_INFO, "demuxer -> ist_index:%d type:%s "
                "next_dts:%s next_dts_time:%s next_pts:%s next_pts_time:%s pkt_pts:%s pkt_pts_time:%s pkt_dts:%s pkt_dts_time:%s off:%s off_time:%s\n",
@@ -4333,12 +4355,12 @@ static int process_input(int file_index)
             memcpy(dst_data, src_sd->data, src_sd->size);
         }
     }
-
+     
     if (pkt.dts != AV_NOPTS_VALUE)
         pkt.dts += av_rescale_q(ifile->ts_offset, AV_TIME_BASE_Q, ist->st->time_base);
-    if (pkt.pts != AV_NOPTS_VALUE)
+    if (pkt.pts != AV_NOPTS_VALUE)//不走
         pkt.pts += av_rescale_q(ifile->ts_offset, AV_TIME_BASE_Q, ist->st->time_base);
-
+     //av_log(NULL, AV_LOG_DEBUG, "ddd %s(%d)  pkt.pts= %lld\n ",__func__, __LINE__, pkt.pts);
     if (pkt.pts != AV_NOPTS_VALUE)
         pkt.pts *= ist->ts_scale;
     if (pkt.dts != AV_NOPTS_VALUE)
@@ -4363,12 +4385,12 @@ static int process_input(int file_index)
     }
 
     duration = av_rescale_q(ifile->duration, ifile->time_base, ist->st->time_base);
-    if (pkt.pts != AV_NOPTS_VALUE) {
+    if (pkt.pts != AV_NOPTS_VALUE) {//不走
         pkt.pts += duration;
         ist->max_pts = FFMAX(pkt.pts, ist->max_pts);
         ist->min_pts = FFMIN(pkt.pts, ist->min_pts);
     }
-
+    //av_log(NULL, AV_LOG_DEBUG, "ddd %s(%d)  pkt.pts= %lld\n ",__func__, __LINE__, pkt.pts);
     if (pkt.dts != AV_NOPTS_VALUE)
         pkt.dts += duration;
 
@@ -4764,6 +4786,7 @@ int main(int argc, char **argv)
 
     show_banner(argc, argv, options);
 
+    av_log_set_level(AV_LOG_DEBUG);//FixMe
     /* parse options and open all input/output files */
     ret = ffmpeg_parse_options(argc, argv);
     if (ret < 0)

@@ -908,11 +908,13 @@ static int open_input_file(OptionsContext *o, const char *filename)
     char *    data_codec_name = NULL;
     int scan_all_pmts_set = 0;
 
+	FUNC_ENTER;
     if (o->format) {
         if (!(file_iformat = av_find_input_format(o->format))) {
             av_log(NULL, AV_LOG_FATAL, "Unknown input format: '%s'\n", o->format);
             exit_program(1);
         }
+		av_log(NULL, AV_LOG_FATAL, "input format: '%s'\n", file_iformat->name);
     }
 
     if (!strcmp(filename, "-"))
@@ -1026,6 +1028,8 @@ static int open_input_file(OptionsContext *o, const char *filename)
             av_log(NULL, AV_LOG_WARNING, "Cannot use -sseof, duration of %s not known\n", filename);
     }
     timestamp = (o->start_time == AV_NOPTS_VALUE) ? 0 : o->start_time;
+	av_log(NULL, AV_LOG_WARNING, "ddd %s: timestamp = %"PRId64" ic->start_time = %"PRId64"\n",
+                   filename, timestamp,  ic->start_time);
     /* add the stream start time */
     if (!o->seek_timestamp && ic->start_time != AV_NOPTS_VALUE)
         timestamp += ic->start_time;
@@ -1045,6 +1049,8 @@ static int open_input_file(OptionsContext *o, const char *filename)
                 seek_timestamp -= 3*AV_TIME_BASE / 23;
             }
         }
+		av_log(NULL, AV_LOG_WARNING, "ddd %s: could  seek to position %0.3f\n",
+                   filename, (double)timestamp / AV_TIME_BASE);
         ret = avformat_seek_file(ic, -1, INT64_MIN, seek_timestamp, seek_timestamp, 0);
         if (ret < 0) {
             av_log(NULL, AV_LOG_WARNING, "%s: could not seek to position %0.3f\n",
@@ -1080,6 +1086,9 @@ static int open_input_file(OptionsContext *o, const char *filename)
     f->thread_queue_size = o->thread_queue_size > 0 ? o->thread_queue_size : 8;
 #endif
 
+     av_log(NULL, AV_LOG_ERROR, "ddd open_input_file"
+                   "f->ts_offset = %lld \n", f->ts_offset);
+     
     /* check if all codec options have been used */
     unused_opts = strip_specifiers(o->g->codec_opts);
     for (i = f->ist_index; i < nb_input_streams; i++) {

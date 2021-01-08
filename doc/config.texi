@@ -21,8 +21,8 @@
 @c @set arch-tilepro no
 @c @set arch-tomi no
 @set arch-x86 yes
-@c @set arch-x86-32 no
-@set arch-x86-64 yes
+@set arch-x86-32 yes
+@c @set arch-x86-64 no
 @c @set have-armv5te no
 @c @set have-armv6 no
 @c @set have-armv6t2 no
@@ -156,9 +156,9 @@
 @c @set have-loongson3-inline no
 @c @set have-mmi-inline no
 @set have-aligned-stack yes
-@set have-fast-64bit yes
+@c @set have-fast-64bit no
 @set have-fast-clz yes
-@set have-fast-cmov yes
+@c @set have-fast-cmov no
 @set have-local-aligned-8 yes
 @set have-local-aligned-16 yes
 @set have-local-aligned-32 yes
@@ -170,7 +170,7 @@
 @c @set have-atomic-cas-ptr no
 @c @set have-machine-rw-barrier no
 @set have-memorybarrier yes
-@set have-mm-empty yes
+@c @set have-mm-empty no
 @set have-rdtsc yes
 @c @set have-sarestart no
 @set have-sem-timedwait yes
@@ -339,7 +339,7 @@
 @c @set have-symver-gnu-asm no
 @c @set have-vfp-args no
 @c @set have-xform-asm no
-@set have-xmm-clobbers yes
+@c @set have-xmm-clobbers no
 @set have-condition-variable-ptr yes
 @set have-socklen-t yes
 @set have-struct-addrinfo yes
@@ -553,7 +553,7 @@
 @c @set config-fontconfig no
 @c @set config-memory-poisoning no
 @c @set config-neon-clobber-test no
-@set config-pic yes
+@c @set config-pic no
 @c @set config-raise-major no
 @c @set config-thumb no
 @c @set config-valgrind-backtrace no

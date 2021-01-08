@@ -203,7 +203,7 @@ static int file_open(URLContext *h, const char *filename, int flags)
     int access;
     int fd;
     struct stat st;
-
+    av_log(NULL, AV_LOG_FATAL, "file_open %s\n", filename);
     av_strstart(filename, "file:", &filename);
 
     if (flags & AVIO_FLAG_WRITE && flags & AVIO_FLAG_READ) {

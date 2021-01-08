@@ -24,6 +24,7 @@
 #include "libavutil/internal.h"
 #include "libavutil/opt.h"
 
+
 /**
  * @file
  * Options definition for AVFormatContext.
@@ -99,6 +100,7 @@ static const AVClass av_format_context_class = {
     .get_category   = get_category,
 };
 
+
 static int io_open_default(AVFormatContext *s, AVIOContext **pb,
                            const char *url, int flags, AVDictionary **options)
 {
@@ -113,7 +115,12 @@ static int io_open_default(AVFormatContext *s, AVIOContext **pb,
         loglevel = AV_LOG_INFO;
 
     av_log(s, loglevel, "Opening \'%s\' for %s\n", url, flags & AVIO_FLAG_WRITE ? "writing" : "reading");
-
+//	if(!strcmp('2.mp4',url))
+//	{
+//
+//        av_log(s, AV_LOG_FATAL, "Opening 2.mp4 for reading\n");
+//
+//	}
 #if FF_API_OLD_OPEN_CALLBACKS
 FF_DISABLE_DEPRECATION_WARNINGS
     if (s->open_cb)

@@ -317,7 +317,7 @@ static int open_file(AVFormatContext *avf, unsigned fileno)
     ConcatContext *cat = avf->priv_data;
     ConcatFile *file = &cat->files[fileno];
     int ret;
-
+	av_log(NULL, AV_LOG_FATAL, " %s ====> \n", __func__);
     if (cat->avf)
         avformat_close_input(&cat->avf);
 
@@ -393,7 +393,7 @@ static int concat_read_header(AVFormatContext *avf)
     unsigned nb_files_alloc = 0;
     ConcatFile *file = NULL;
     int64_t time = 0;
-
+    av_log(NULL, AV_LOG_FATAL, " %s ====> \n", __func__);
     while (1) {
         if ((ret = ff_get_line(avf->pb, buf, sizeof(buf))) <= 0)
             break;
@@ -409,6 +409,7 @@ static int concat_read_header(AVFormatContext *avf)
                 av_log(avf, AV_LOG_ERROR, "Line %d: filename required\n", line);
                 FAIL(AVERROR_INVALIDDATA);
             }
+			av_log(NULL, AV_LOG_FATAL, " %s add file %s  \n", __func__, filename);
             if ((ret = add_file(avf, filename, &file, &nb_files_alloc)) < 0)
                 goto fail;
         } else if (!strcmp(keyword, "duration") || !strcmp(keyword, "inpoint") || !strcmp(keyword, "outpoint")) {

@@ -372,7 +372,7 @@ FF_ENABLE_DEPRECATION_WARNINGS
 
 int av_demuxer_open(AVFormatContext *ic) {
     int err;
-
+    
     if (ic->format_whitelist && av_match_list(ic->iformat->name, ic->format_whitelist, ',') <= 0) {
         av_log(ic, AV_LOG_ERROR, "Format not on whitelist \'%s\'\n", ic->format_whitelist);
         return AVERROR(EINVAL);
@@ -397,7 +397,7 @@ static int init_input(AVFormatContext *s, const char *filename,
     int ret;
     AVProbeData pd = { filename, NULL, 0 };
     int score = AVPROBE_SCORE_RETRY;
-
+    av_log(NULL, AV_LOG_DEBUG, "init input %s\n", filename);
     if (s->pb) {
         s->flags |= AVFMT_FLAG_CUSTOM_IO;
         if (!s->iformat)
@@ -514,7 +514,7 @@ int avformat_open_input(AVFormatContext **ps, const char *filename,
     int i, ret = 0;
     AVDictionary *tmp = NULL;
     ID3v2ExtraMeta *id3v2_extra_meta = NULL;
-
+    av_log(NULL, AV_LOG_FATAL, " %s ====> \n", __func__);
     if (!s && !(s = avformat_alloc_context()))
         return AVERROR(ENOMEM);
     if (!s->av_class) {
@@ -590,7 +590,7 @@ int avformat_open_input(AVFormatContext **ps, const char *filename,
     if (s->pb)
         ff_id3v2_read_dict(s->pb, &s->internal->id3v2_meta, ID3v2_DEFAULT_MAGIC, &id3v2_extra_meta);
 
-
+    av_log(NULL, AV_LOG_FATAL, " %s s->iformat->read_header \n", __func__);
     if (!(s->flags&AVFMT_FLAG_PRIV_OPT) && s->iformat->read_header)
         if ((ret = s->iformat->read_header(s)) < 0)
             goto fail;
